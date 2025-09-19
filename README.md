@@ -24,3 +24,95 @@ ORDER BY g.Grade DESC,
 
 This result is correct based on the instructions, but still has an error - I think it's some strict rules from HackerRank Environment
 
+## Weather Observation Station 18
+---
+📝 Instructions : Consider P1(a,b) and P2(c,d) to be two points on a 2D plane.
+ happens to equal the minimum value in Northern Latitude (LAT_N in STATION).
+ happens to equal the minimum value in Western Longitude (LONG_W in STATION).
+ happens to equal the maximum value in Northern Latitude (LAT_N in STATION).
+ happens to equal the maximum value in Western Longitude (LONG_W in STATION).
+Query the Manhattan Distance between points P1 and P2 and round it to a scale of decimal places.
+## Here's my SQL : 
+```
+SELECT CAST(
+         ABS(MAX(LAT_N) - MIN(LAT_N)) 
+       + ABS(MAX(LONG_W) - MIN(LONG_W))
+       AS DECIMAL(10,4))
+FROM STATION;
+```
+## Result
+<img width="803" height="494" alt="Screenshot 2025-09-19 at 13 19 03" src="https://github.com/user-attachments/assets/8f45ec89-39c3-4356-b6a8-453c4dfe37b8" />
+
+## Top Competitors
+---
+📝 Instructions : Julia just finished conducting a coding contest, and she needs your help assembling the leaderboard! Write a query to print the respective hacker_id and name of hackers who achieved full scores for more than one challenge. Order your output in descending order by the total number of challenges in which the hacker earned a full score. If more than one hacker received full scores in same number of challenges, then sort them by ascending hacker_id.
+## Here's my SQL : 
+```
+WITH 
+max_score AS (
+    SELECT 
+        c.challenge_id,
+        d.score AS max_score
+    FROM Challenges c 
+        JOIN Difficulty d ON d.difficulty_level = c.difficulty_level
+),
+
+per_hacker AS (
+    SELECT s.hacker_id, 
+    COUNT(DISTINCT s.challenge_id) AS count_max_score
+    FROM Submissions s 
+        JOIN max_score m ON m.challenge_id = s.challenge_id AND m.max_score = s.score
+    GROUP BY s.hacker_id
+    HAVING COUNT(DISTINCT s.challenge_id) > 1
+),
+
+take_name AS(
+    SELECT h.hacker_id, h.name, ph.count_max_score
+    FROM Hackers h 
+    JOIN per_hacker ph ON ph.hacker_id = h.hacker_id
+)
+```
+
+## Result
+<img width="795" height="592" alt="Screenshot 2025-09-19 at 14 24 10" src="https://github.com/user-attachments/assets/2ace4044-363d-46b5-b0c4-9c1718a1e844" />
+
+<img width="450" height="479" alt="Screenshot 2025-09-19 at 14 24 26" src="https://github.com/user-attachments/assets/3cccc888-6133-4b7f-a6db-a0ff41fb62ea" />
+
+## Ollivander's Inventory
+---
+📝 Instructions : Harry Potter and his friends are at Ollivander's with Ron, finally replacing Charlie's old broken wand.
+Hermione decides the best way to choose is by determining the minimum number of gold galleons needed to buy each non-evil wand of high power and age. Write a query to print the id, age, coins_needed, and power of the wands that Ron's interested in, sorted in order of descending power. If more than one wand has same power, sort the result in order of descending age.
+## Here's my SQL : 
+```
+WITH
+group_col AS(
+    SELECT wp.age, w.power, w.coins_needed, wp.is_evil, w.code, w.id,
+    MIN(w.coins_needed) OVER(PARTITION BY w.power, wp.age ) AS coins_min
+    FROM Wands w 
+    JOIN Wands_Property wp ON w.code = wp.code
+    WHERE wp.is_evil = 0
+)
+
+SELECT id, age, coins_needed, power
+FROM group_col
+WHERE coins_needed = coins_min
+ORDER BY power DESC, age DESC;
+```
+
+## Result
+
+<img width="791" height="505" alt="Screenshot 2025-09-19 at 15 05 27" src="https://github.com/user-attachments/assets/84824370-95bf-48ad-a58d-df97fe0d165a" />
+
+<img width="583" height="481" alt="Screenshot 2025-09-19 at 15 05 34" src="https://github.com/user-attachments/assets/1f9d9a17-b082-444a-a06d-afa05a31738c" />
+
+
+
+
+
+
+
+
+
+
+
+
