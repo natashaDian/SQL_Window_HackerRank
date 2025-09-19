@@ -105,6 +105,41 @@ ORDER BY power DESC, age DESC;
 
 <img width="583" height="481" alt="Screenshot 2025-09-19 at 15 05 34" src="https://github.com/user-attachments/assets/1f9d9a17-b082-444a-a06d-afa05a31738c" />
 
+## Contest Leaderboard
+---
+📝 Instructions : You did such a great job helping Julia with her last coding contest challenge that she wants you to work on this one, too!
+The total score of a hacker is the sum of their maximum scores for all of the challenges. Write a query to print the hacker_id, name, and total score of the hackers ordered by the descending score. If more than one hacker achieved the same total score, then sort the result by ascending hacker_id. Exclude all hackers with a total score of  from your result.
+## Here's my SQL : 
+```
+WITH
+max_score AS(
+    SELECT hacker_id, challenge_id,
+        MAX(score) as max_score
+    FROM Submissions 
+    GROUP BY hacker_id, challenge_id
+),
+
+grouped AS(
+    SELECT h.hacker_id, h.name, m.max_score
+    FROM max_score m
+    JOIN Hackers h ON h.hacker_id = m.hacker_id
+    WHERE m.max_score > 0
+)
+
+SELECT hacker_id, name, 
+    SUM(max_score) as total
+FROM grouped
+GROUP BY hacker_id, name
+HAVING SUM(max_score) > 0
+ORDER BY total DESC, hacker_id ASC;
+```
+
+## Result
+<img width="803" height="545" alt="Screenshot 2025-09-19 at 15 35 15" src="https://github.com/user-attachments/assets/4fabfc85-7f9a-4eb9-85f3-e71efd27391a" />
+
+<img width="677" height="475" alt="Screenshot 2025-09-19 at 15 35 22" src="https://github.com/user-attachments/assets/9a0d0f3d-38a7-47db-be12-00ed642bba58" />
+
+
 
 
 
